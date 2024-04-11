@@ -1,0 +1,324 @@
+---
+title: "AirBnB College Project"
+author: "Neelam"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r}
+# Set your working directory if it's not already set
+setwd("C:/Neelam/big data colledge project/")
+
+# Load the entire RData file
+loaded_data <- load("AirBnB (1).Rdata")
+
+# List the objects loaded in the environment
+loaded_data
+
+# List all objects in the environment
+objects <- ls()
+
+# Check the structure or content of objects 'L' and 'R'
+ #  for (obj in objects) {
+#  print(obj)
+#  print(str(get(obj)))  # Use str() to display the structure of each object
+#}
+
+# Get the data from 'L' and 'R'
+data_from_L <- get('L')
+data_from_R <- get('R')
+
+## Check the structure or summary of the extracted data
+#str(data_from_L)
+head(data_from_L)
+
+AirBnBData <- data_from_L
+
+```
+
+
+```{r}
+# Assuming 'AirBnBData' is your dataset
+
+# Check the structure of the dataset
+#str(AirBnBData)
+
+# Display the first few rows of the dataset
+#head(AirBnBData)
+
+# Summary statistics for numerical columns
+#summary(AirBnBData)
+# Assuming 'AirBnBData' is your dataset
+
+# Select only numeric columns
+numeric_data <- AirBnBData[, sapply(AirBnBData, is.numeric)]
+
+# Display the structure of the new data frame
+#str(numeric_data)
+
+# Display the first few rows of the new data frame
+head(numeric_data)
+names(numeric_data)
+```
+
+
+```{r}
+# Columns related to pricing and apartment features
+pricing_apartment_features <- AirBnBData[c(
+  "price", "weekly_price", "monthly_price", 
+  "security_deposit", "cleaning_fee", 
+  "accommodates", "bathrooms", "bedrooms", "beds", 
+  "property_type", "room_type", "square_feet"
+)]
+
+# Columns related to owner information
+owner_info <- AirBnBData[c(
+  "host_id", "host_name", "host_since", 
+  "host_listings_count", "host_total_listings_count"
+)]
+
+# Columns related to quarters
+quarters_info <- AirBnBData[c(
+  "neighbourhood", "neighbourhood_cleansed", 
+  "neighbourhood_group_cleansed", "city", "zipcode"
+)]
+
+# Columns related to visit frequency
+visit_frequency <- AirBnBData[c(
+  "calendar_last_scraped", "number_of_reviews", 
+  "first_review", "last_review", "reviews_per_month"
+)]
+
+# Relationships between prices and apartment features can be explored using visualizations and statistical methods.
+# Number of apartments per owner can be obtained by aggregating data based on 'host_id' and counting the occurrences.
+# Renting price per city quarter can be calculated by aggregating 'price' based on 'neighbourhood' or 'zipcode'.
+
+# Visit frequency of different quarters according to time can be analyzed by plotting trends in 'reviews_per_month' or 'number_of_reviews' over time.
+
+# You can further analyze relationships, trends, and distributions using plots, summary statistics, and aggregations based on these selected columns.
+selected_data <- cbind(pricing_apartment_features, owner_info,visit_frequency , quarters_info)
+head(selected_data)
+final_AirBnBdata <-selected_data
+```
+
+```{r}
+boxplot(final_AirBnBdata$price, main = "Boxplot of Price")
+
+
+
+```
+
+
+```{r}
+plot(final_AirBnBdata$number_of_reviews, final_AirBnBdata$price, 
+     main = "Price vs Number of Reviews", xlab = "Number of Reviews", ylab = "Price")
+
+```
+
+
+```{r}
+# Select relevant columns from AirBnBData
+selected_features <- AirBnBData[c(
+  "price", "weekly_price", "monthly_price", "security_deposit", "cleaning_fee",
+  "accommodates", "bathrooms", "bedrooms", "beds", "property_type", "room_type", "square_feet",
+  "host_id", "host_name", "host_since", "host_listings_count", "host_total_listings_count",
+  "calendar_last_scraped", "number_of_reviews", "first_review", "last_review", "reviews_per_month",
+  "neighbourhood", "neighbourhood_cleansed", "neighbourhood_group_cleansed", "city"
+)]
+
+selected_features <- sapply(selected_features, as.numeric)
+
+# Compute the correlation matrix
+correlation_matrix <- cor(selected_features)
+
+# Plot heatmap
+heatmap(correlation_matrix, 
+        Colv = NA, Rowv = NA, 
+        col = colorRampPalette(c("blue", "white", "red"))(100),
+        main = "Correlation Heatmap of Airbnb Features")
+
+```
+```{r}
+# Select relevant columns from AirBnBData
+selected_features <- AirBnBData[c(
+  "price", "weekly_price", "monthly_price", "security_deposit", "cleaning_fee",
+  "accommodates", "bathrooms", "bedrooms", "beds", "square_feet"
+)]
+
+# Convert selected columns to numeric
+selected_features <- sapply(selected_features, as.numeric)
+
+# Compute the correlation matrix
+correlation_matrix <- cor(selected_features, use = "complete.obs")
+
+# Plot heatmap
+heatmap(correlation_matrix, 
+        Colv = NA, Rowv = NA, 
+        col = colorRampPalette(c("blue", "white", "red"))(100),
+        main = "Correlation Heatmap of Airbnb Features")
+
+```
+
+
+```{r}
+plot(AirBnBData$square_feet, AirBnBData$price, 
+     xlab = "Square Feet", ylab = "Price", 
+     main = "Price vs Square Feet")
+
+```
+
+```{r}
+barplot(table(AirBnBData$city, AirBnBData$number_of_reviews), 
+        xlab = "City", ylab = "Number of Reviews", 
+        main = "City vs Number of Reviews", beside = TRUE, col = rainbow(5))
+
+```
+
+
+```{r}
+boxplot(AirBnBData$price ~ AirBnBData$property_type, 
+        xlab = "Property Type", ylab = "Price",
+        main = "Property Type vs Price", las = 2)
+
+```
+
+```{r}
+# Convert 'Price' column to numeric
+final_AirBnBdata$price <- as.numeric(final_AirBnBdata$price)
+
+hist(final_AirBnBdata$price, breaks = 30, 
+     xlab = "Price", ylab = "Frequency",
+     main = "Distribution of Prices")
+
+```
+
+
+```{r}
+plot(AirBnBData$host_listings_count, AirBnBData$host_total_listings_count, 
+     xlab = "Host Listings Count", ylab = "Host Total Listings Count", 
+     main = "Host Listings Count vs Host Total Listings Count")
+
+
+```
+
+```{r}
+# Remove non-numeric characters from 'cleaning_fee' and convert to numeric
+AirBnBData$cleaning_fee <- as.numeric(gsub("[^0-9.]", "", AirBnBData$cleaning_fee))
+
+# Create histogram for 'cleaning_fee'
+hist(AirBnBData$cleaning_fee, breaks = 30, 
+     xlab = "Cleaning Fee", ylab = "Frequency",
+     main = "Distribution of Cleaning Fee")
+
+
+```
+```{r}
+plot(AirBnBData$host_since, AirBnBData$host_listings_count, 
+     type = "l", xlab = "Host Since", ylab = "Host Listings Count",
+     main = "Host Listings Count over Time")
+
+```
+
+
+```{r}
+# Convert 'calendar_last_scraped' to Date format
+AirBnBData$calendar_last_scraped <- as.Date(AirBnBData$calendar_last_scraped)
+
+# Plotting the visit frequency of quarters over time
+plot(AirBnBData$calendar_last_scraped, AirBnBData$reviews_per_month,
+     type = "l",   # 'l' for a line plot
+     xlab = "Date", ylab = "Reviews per Month",
+     main = "Visit Frequency of Quarters Over Time")
+
+```
+
+
+```{r}
+# Check for missing values in 'price' and 'city' columns
+sum(is.na(AirBnBData$price))  # Check for missing values in 'price'
+sum(is.na(AirBnBData$city))   # Check for missing values in 'city'
+
+# Check the structure of the 'price' column
+str(AirBnBData$price)
+
+# Check unique values in the 'city' column
+unique_cities <- unique(AirBnBData$city)
+
+zipcodeu <- unique(AirBnBData$zipcode)
+
+
+```
+
+
+
+```{r}
+# Check for missing values in 'price' and 'city' columns
+sum(is.na(AirBnBData$price))
+sum(is.na(AirBnBData$city))
+
+# Remove rows with missing 'price' or 'city' values
+cleaned_data <- AirBnBData[complete.cases(AirBnBData$price) & complete.cases(AirBnBData$city), ]
+
+# Convert 'price' column to numeric (if it's not already numeric)
+cleaned_data$price <- as.numeric(cleaned_data$price)
+
+# Create a bar plot for sum of prices for each city
+library(ggplot2)
+sum_price_per_city <- aggregate(price ~ city, data = cleaned_data, FUN = sum)
+ggplot(sum_price_per_city, aes(x = city, y = price)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Sum of Prices for Each City", x = "City", y = "Sum of Prices")
+
+# Create a bar plot for average price for each city
+avg_price_per_city <- aggregate(price ~ city, data = cleaned_data, FUN = mean)
+ggplot(avg_price_per_city, aes(x = city, y = price)) +
+  geom_bar(stat = "identity", fill = "salmon") +
+  labs(title = "Average Price for Each City", x = "City", y = "Average Price")
+
+```
+```{r}
+library(dplyr)
+
+# Grouping by host_id and host_name, then calculating the count of unique ids
+apartments_per_owner <- AirBnBData %>%
+  group_by(host_id, host_name) %>%
+  summarise(number_of_apartments = n_distinct(id)) %>%
+  arrange(desc(number_of_apartments))
+
+# Viewing the table
+print(apartments_per_owner)
+
+```
+
+
+
+
+```{r}
+# Assuming AirBnBData has the required columns: calendar_last_scraped, number_of_reviews
+library(ggplot2)
+
+# Convert calendar_last_scraped to Date format if it's not already in Date format
+AirBnBData$calendar_last_scraped <- as.Date(AirBnBData$calendar_last_scraped)
+
+# Aggregate number_of_reviews by date
+visit_frequency <- AirBnBData %>%
+  group_by(calendar_last_scraped) %>%
+  summarise(total_reviews = sum(number_of_reviews, na.rm = TRUE))
+
+# Create a time series plot
+ggplot(visit_frequency, aes(x = calendar_last_scraped, y = total_reviews)) +
+  geom_line() +
+  labs(x = "Date", y = "Visit Frequency", title = "Visit Frequency Over Time")
+
+```
